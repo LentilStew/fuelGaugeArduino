@@ -60,7 +60,7 @@ void loop() {
       break;
 
     case FUEL_RIGHT_QUANTITY:
-      if(fuel_left_cap <= 0){break;}
+      if(fuel_right_cap <= 0){break;}
       
       new_angle = (int)((value * MAX_ANGLE) / fuel_right_cap);
       right_fuel_servo.write(new_angle);
