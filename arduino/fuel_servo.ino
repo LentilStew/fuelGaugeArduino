@@ -33,6 +33,13 @@ void loop() {
 
   long int key = inputString.substring(0, commaIndex).toInt();
   long int value = inputString.substring(commaIndex + 1).toInt();
+  
+  Serial.println("FUEL_LEFT_CAPACITY");
+  Serial.println(key);
+
+  Serial.println("FUEL_LEFT_QUANTITY");
+  Serial.println(value);
+
   long int new_angle;
   
     switch (key) {
