@@ -9,3 +9,4 @@ dist/
 *.dmg
 *.app
 *.out
+.vscode

@@ -1,15 +1,30 @@
 from SimConnect import *
-
 import time
 from arduino import connect_to_arduino
 import sys
 from serial import Serial
+import re
+import struct
+
+KEYS_H = "./keys.h"
+
+#loads the keys from the keys.h header file
+pattern = re.compile(r'#define\s+(\w+)\s+(\d+)')
+
+with open(KEYS_H, 'r') as f:
+    contents = f.read()
+
+pairs = pattern.findall(contents)
+
+plane_values = {key: int(value) for key, value in pairs}
+
+
 
 ser:Serial = None
 sm:SimConnect = None
 aq:AircraftRequests = None
-def main():
 
+def main():
     if len(sys.argv) < 2:
         serial_port = "COM3"
     else:
@@ -23,11 +38,10 @@ def loop(serial_port):
     global ser
     global sm
     global aq
-
+    values_to_reads = ["FUEL_LEFT_CAPACITY","FUEL_RIGHT_CAPACITY","FUEL_LEFT_QUANTITY","FUEL_RIGHT_QUANTITY"]
 
     if not ser or not ser.is_open:
         ser = connect_to_arduino(serial_port)
-        
         if not ser:
             return
 
@@ -36,24 +50,26 @@ def loop(serial_port):
             sm = SimConnect()
             aq = AircraftRequests(sm, _time=2000)
 
-        time.sleep(1)
-
-        fuel_capacity = aq.find("FUEL_TOTAL_CAPACITY").value
-        curr_fuel = aq.find("FUEL_TOTAL_QUANTITY").value
+        time.sleep(3)
         
-        if not curr_fuel or not fuel_capacity:
-            print("failed reading values")
-            return 
-        
-        curr_fuel_angle = int((curr_fuel * 340) / fuel_capacity)
+        values_read = {}
+        print("Wrote")
+        for value_key in values_to_reads:
+            values_read[value_key] =int(aq.find(value_key).value)
 
-        ser.write(str(curr_fuel_angle).encode())
+            if not values_read[value_key]:
+                print("failed reading value ",value_key)
+                return
+            print(str(plane_values[value_key]) + ',' + str(values_read[value_key]))
+            
+            ser.write(bytes(str(plane_values[value_key]) + ',' + str(values_read[value_key]) + '\n', 'utf-8'))
+            
 
-        print("Sent value:", curr_fuel_angle)
-
-        if ser.in_waiting > 0:
+        while ser.in_waiting > 0:
             arduino_output = ser.readline().decode().strip()
-            print("Received from Arduino:", arduino_output)
+            print("Received from Arduino: ", arduino_output)
+
+
     except Exception as e:
         
         print("waiting for p3d to open",e)
