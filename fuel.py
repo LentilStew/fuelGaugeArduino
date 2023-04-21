@@ -26,7 +26,7 @@ aq:AircraftRequests = None
 
 def main():
     if len(sys.argv) < 2:
-        serial_port = "COM3"
+        serial_port = "COM4"
     else:
         serial_port = sys.argv[1]
          
@@ -55,14 +55,18 @@ def loop(serial_port):
         values_read = {}
         print("Wrote")
         for value_key in values_to_reads:
-            values_read[value_key] =int(aq.find(value_key).value)
+            values_read[value_key] =aq.find(value_key).value
 
-            if not values_read[value_key]:
+            if values_read[value_key] == None:
                 print("failed reading value ",value_key)
                 return
-            print(str(plane_values[value_key]) + ',' + str(values_read[value_key]))
+            else:
+                values_read[value_key] = int(values_read[value_key])
             
-            ser.write(bytes(str(plane_values[value_key]) + ',' + str(values_read[value_key]) + '\n', 'utf-8'))
+            print(value_key + ', ' + str(values_read[value_key]))
+            command = bytes(str(plane_values[value_key]) + ',' + str(values_read[value_key]) + '\n', 'utf-8')
+            print(command)
+            ser.write(command)
             
 
         while ser.in_waiting > 0:
@@ -72,7 +76,7 @@ def loop(serial_port):
 
     except Exception as e:
         
-        print("waiting for p3d to open",e)
+        print(e)
         
         if(sm):
             sm.exit()
