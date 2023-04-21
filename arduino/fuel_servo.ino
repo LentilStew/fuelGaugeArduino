@@ -12,10 +12,11 @@ Servo left_fuel_servo;
 Servo right_fuel_servo;
 
 #define MAX_ANGLE 200
+
 void setup() {
   Serial.begin(9600);   
-  left_fuel_servo.attach(10); // attach left servo to pin 10
-  right_fuel_servo.attach(11); // attach right servo to pin 11
+  left_fuel_servo.attach(10);
+  right_fuel_servo.attach(11);
 }
 
 void loop() {
@@ -55,7 +56,7 @@ void loop() {
     case FUEL_LEFT_QUANTITY:
       if(fuel_left_cap <= 0){break;}
       Serial.println("Servo izquiero ");
-      new_angle = (int)((value * MAX_ANGLE) / fuel_left_cap);
+      new_angle = (int)((value * MAX_ANGLE) / fuel_left_cap) + 20;
       Serial.println(new_angle);
       
       left_fuel_servo.write(new_angle);
@@ -65,7 +66,7 @@ void loop() {
       if(fuel_right_cap <= 0){break;}
       Serial.println("Servo derecho ");
       
-      new_angle = (int)((value * MAX_ANGLE) / fuel_right_cap);
+      new_angle = (int)((value * MAX_ANGLE) / fuel_right_cap) + 20;
       Serial.println(new_angle);
       
       right_fuel_servo.write(new_angle);
